@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -127,6 +128,11 @@ func NewPersonController(db *gorm.DB, baseLog zerolog.Logger) web.CrudRouterCont
 				log.Error().Err(err).Msg("decode json")
 				return nil, err
 			}
+			if obj.Name == "" || obj.Surname == "" {
+				err := errors.New("require")
+				log.Error().Err(err).Msg("empty field")
+				return nil, err
+			}
 			EnrichmentData(&obj)
 
 			tx := db.Model(&data.Person{}).Create(&obj)
@@ -140,6 +146,11 @@ func NewPersonController(db *gorm.DB, baseLog zerolog.Logger) web.CrudRouterCont
 			var obj data.Person
 			if err := json.Unmarshal(r, &obj); err != nil {
 				log.Error().Err(err).Msg("decode json")
+				return nil, err
+			}
+			if obj.Name == "" || obj.Surname == "" {
+				err := errors.New("require")
+				log.Error().Err(err).Msg("empty field")
 				return nil, err
 			}
 			EnrichmentData(&obj)
